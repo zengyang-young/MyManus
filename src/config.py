@@ -8,19 +8,13 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 # 设置代理
-os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7890'
-os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
+# os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7890'
+# os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
 
 # 模型API配置
 API_KEY = os.getenv("API_KEY")
 MODEL = os.getenv("MODEL")
 BASE_URL = os.getenv("BASE_URL")
-
-# 谷歌搜索配置
-GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY")
-CSE_ID = os.getenv("CSE_ID")
-SEARCH_COOKIE = os.getenv("search_cookie")
-SEARCH_USER_AGENT = os.getenv("search_ueser_agent")
 
 # MySQL数据库配置
 DB_HOST = os.getenv("HOST")
