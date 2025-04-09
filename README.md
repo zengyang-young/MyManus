@@ -1,0 +1,2 @@
+# MyManus
+MyManus是一个基于DeepSeek大模型的企业级智能体，能够自动化完成多种任务，包括搜索网络信息、编写数据分析报告、执行Python代码和SQL查询等。
