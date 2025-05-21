@@ -9,6 +9,15 @@ from src.models.tools import get_all_tools
 from src.services.python_service import python_inter, fig_inter
 from src.services.db_service import sql_inter, extract_data
 from src.services.search_service import get_search_result, get_answer_github
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import json
+from gevent import pywsgi
+
+
+# 创建一个服务
+app = Flask(__name__)
+CORS(app, origins='http://localhost:3000')
 
 
 class MyManus:
@@ -26,10 +35,10 @@ class MyManus:
         self.available_tools = {
             "python_inter": python_inter,
             "fig_inter": fig_inter,
-            "sql_inter": sql_inter,
-            "extract_data": extract_data,
-            "get_search_result": get_search_result,
-            "get_answer_github": get_answer_github,
+            # "sql_inter": sql_inter,
+            # "extract_data": extract_data,
+            # "get_search_result": get_search_result,
+            # "get_answer_github": get_answer_github,
         }
         
     def chat(self, user_message):
@@ -131,6 +140,27 @@ class MyManus:
         print("对话历史已重置")
 
 
+# 创建一个接口 指定路由和请求方法 定义处理请求的函数
+@app.route(rule='/analyze', methods=['POST'])
+def everything():
+    # 1.获取 JSON 格式的请求体 并解析拿到数据
+    request_body = request.get_json()
+    print('request_body:', request_body)
+    target = request_body.get("target", "")
+    parameter = request_body.get("parameter", "")
+    scenario = request_body.get("scenario", "")
+    illustrate = request_body.get("illustrate", "")
+    user_input = '通过公式 E(i)=A(i)*EF(i)计算' + target + '的碳排放总量，其中E(i)表示脐橙产品生产过程中第i种活动的二氧化碳排放量，A(i)表示第i种活动的活动水平，EF(i)表示第i种活动的碳排放因子。'
+    user_input = user_input + '按照以下参数计算:' + parameter + '。'
+    user_input = user_input + '产生碳排放的场景可能有:' + scenario + '。'
+    if illustrate != '':
+        user_input = user_input + '补充说明:' + illustrate
+    try:
+        response = {'code': 0, 'message': '', 'data': manus.chat(user_input)}
+    except Exception as e:
+        response = {'code': 400, 'message': e, 'data': manus.chat(user_input)}
+    return response
+
 if __name__ == "__main__":
     """
     主程序入口
@@ -138,25 +168,30 @@ if __name__ == "__main__":
     print("初始化MyManus智能体...")
     manus = MyManus()
     print("MyManus智能体已准备就绪！")
-    print("输入 'exit'、'quit' 或 'q' 退出对话")
-    print("输入 'reset' 或 'r' 重置对话")
-    print("-" * 50)
+    # print("输入 'exit'、'quit' 或 'q' 退出对话")
+    # print("输入 'reset' 或 'r' 重置对话")
+    # print("-" * 50)
+
+    # 启动服务 指定主机和端口
+    server = pywsgi.WSGIServer(('127.0.0.1', 8807), app)
+    print('server is running...')
+    server.serve_forever()
     
-    while True:
-        user_input = input("🧑‍💻 >>> ")
-        
-        # 检查退出命令
-        if user_input.lower() in ['exit', 'quit', 'q']:
-            print("再见！")
-            break
-        
-        # 检查重置命令
-        if user_input.lower() in ['reset', 'r']:
-            manus.reset()
-            continue
-        
-        try:
-            response = manus.chat(user_input)
-            print(f"🤖 >>> {response}")
-        except Exception as e:
-            print(f"❌ 发生错误: {e}") 
+    # while True:
+    #     user_input = input("🧑‍💻 >>> ")
+    #
+    #     # 检查退出命令
+    #     if user_input.lower() in ['exit', 'quit', 'q']:
+    #         print("再见！")
+    #         break
+    #
+    #     # 检查重置命令
+    #     if user_input.lower() in ['reset', 'r']:
+    #         manus.reset()
+    #         continue
+    #
+    #     try:
+    #         response = manus.chat(user_input)
+    #         print(f"🤖 >>> {response}")
+    #     except Exception as e:
+    #         print(f"❌ 发生错误: {e}")
